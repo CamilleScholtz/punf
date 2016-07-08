@@ -1,0 +1,5 @@
+complete -c punf -f -o c -l clipboard -d 'Upload your clipboard as text'
+complete -c neet -f -o d -l desktop -d 'Force desktop scrot'
+complete -c neet -f -o s -l selection -d 'Upload selection scrot'
+complete -c neet -o q -l quiet -d 'Disable all feedback (for scripts using punf)'
+complete -c neet -f -o h -l help -d 'Print help and exit'
