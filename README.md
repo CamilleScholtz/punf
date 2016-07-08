@@ -27,6 +27,7 @@ Dependencies
 * xsel (optional, for copying links to clipboard)
 * maim (optional, for screenshots)
 * slop (optional, for selection screenshot)
+* randstr (https://github.com/onodera-punpun/randstr, optional, for ssh uploads)
 
 
 Installation
