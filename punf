@@ -171,10 +171,12 @@ if test (count $argv) -ge 1
 			case q quiet
 				set quiet true
 				file $val
-			case 'http*'
-				url $val
 			case '*'
-				file $val
+				if string match -q -r '^http.*' $val
+					url $val
+				else
+					file $val
+				end
 		end
 	end
 else
