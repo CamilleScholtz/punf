@@ -1,11 +1,9 @@
-punf
-====
+# punf
 
 Upload files/scrots/urls to sr.ht, punpun.xyz, or via ssh.
 
 
-Help
-----
+## Help
 
 ```
 Usage: punf [options] [file/url]
@@ -19,8 +17,7 @@ options:
 ```
 
 
-Examples
---------
+## Examples
 
 Upload stdin as a text file:
 ```
@@ -35,8 +32,7 @@ Punfed url: https://punpun.xyz/6r2T.png
 ```
 
 
-Dependencies
-------------
+## Dependencies
 
 * fish (2.3.0+)
 * getopts (https://github.com/fisherman/getopts)
@@ -46,8 +42,7 @@ Dependencies
 * randstr (https://github.com/onodera-punpun/randstr, optional, for ssh uploads)
 
 
-Installation
-------------
+## Installation
 
 Run `make install` inside the `punf` directory to install the script.
 `punf` can be uninstalled easily using `make uninstall`.
