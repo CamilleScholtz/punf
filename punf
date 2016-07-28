@@ -66,7 +66,7 @@ function selection
 
 	set -g uploadme /tmp/scrot.png
 
-	maim --hidecursor -s -b 3 -c 250,250,250 $uploadme ^/dev/null
+	maim --hidecursor -s -b 10 -c 238,238,238 $uploadme ^/dev/null
 	if test $status -ge 1
 		echo 'Selection cancelled.' >/dev/stderr
 		exit 1
@@ -91,7 +91,7 @@ function upload
 		case sr.ht
 			set -g url (curl --silent -F key=$key -F file="@$uploadme" https://sr.ht/api/upload | string match -r 'https://sr.ht/[a-zA-Z0-9._-]*')
 		case punpun.xyz
-			set -g url (curl --silent -F key=$key -F file="@$uploadme" https://punpun.xyz:10443)
+			set -g url (curl --silent -F file="@$uploadme" https://punpun.xyz/upload)
 		case ssh
 			set basename (randstr)
 			set extension (basename $uploadme | awk -F . '{print $NF}')
