@@ -6,9 +6,9 @@ Upload files/scrots/urls to sr.ht, punpun.xyz, or via ssh.
 ## Help
 
 ```
-Usage: punf [options] [file/url]
+Usage: punf [arguments] [file/url]
 
-options:
+arguments:
   -c,   --clipboard       upload your clipboard as text
   -d,   --desktop         force desktop scrot
   -s,   --selection       upload selection scrot

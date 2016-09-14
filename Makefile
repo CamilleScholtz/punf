@@ -8,7 +8,7 @@ all:
 	@echo Run \'make install\' to install punf.
 
 install:
-	@echo "Installing binaries."
+	@echo "Installing esecutables."
 	$(INSTALL_DIR) $(DESTDIR)$(PREFIX)/bin
 	$(INSTALL_PROG) punf $(DESTDIR)$(PREFIX)/bin/punf
 	@echo "Installing configs."
@@ -19,7 +19,7 @@ install:
 	$(INSTALL_FILE) completions/punf.fish $(DESTDIR)$(PREFIX)/share/fish/completions/punf.fish
 
 uninstall:
-	@echo "Uninstalling binaries."
+	@echo "Uninstalling esecutables."
 	$(RM) $(DESTDIR)$(PREFIX)/bin/punf
 	@echo "Uninstalling configs."
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/punf

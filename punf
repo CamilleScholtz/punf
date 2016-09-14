@@ -96,7 +96,7 @@ function upload
 			set basename (randstr)
 			set extension (basename $uploadme | awk -F . '{print $NF}')
 
-			scp -q $uploadme root@punpun.xyz:/srv/$basename.$extension
+			scp -q $uploadme $ssh/$basename.$extension
 
 			set -g url https://punpun.xyz/$basename.$extension
 		case "*"
@@ -154,8 +154,8 @@ if test (count $argv) -ge 1
 	getopts $argv | while read -l opt val
 		switch $opt
 			case h help
-				echo -e 'Usage: punf [options] [file/url]\n'
-				echo 'options:'
+				echo -e 'Usage: punf [arguments] [file/url]\n'
+				echo 'arguments:'
 				echo '  -c,   --clipboard       upload your clipboard as text'
 				echo '  -d,   --desktop         force desktop scrot'
 				echo '  -s,   --selection       upload selection scrot'

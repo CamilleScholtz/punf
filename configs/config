@@ -1,6 +1,9 @@
 # Set default host (sr.ht, punpun.xyz or ssh)
 set host ssh
 
+# Set ssh host/path (only needed if using ssh host)
+set ssh root@punpun.xyz:/srv
+
 # Your sr.ht/punpun.xyz key
 set key (cat $HOME/.$host ^/dev/null)
 
