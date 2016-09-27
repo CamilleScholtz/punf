@@ -1,6 +1,6 @@
 #!/bin/fish
 #
-# punf - Upload files/scrots/urls to sr.ht, punpun.xyz, or via ssh
+# punf - Upload files/scrots/urls to punpun.xyz or sr.ht.
 # onodera, https://github.com/onodera-punpun
 
 ## CONFIGURATION
@@ -92,15 +92,8 @@ function upload
 			set -g url (curl --silent -F key=$key -F file="@$uploadme" https://sr.ht/api/upload | string match -r 'https://sr.ht/[a-zA-Z0-9._-]*')
 		case punpun.xyz
 			set -g url (curl --silent -F file="@$uploadme" https://punpun.xyz/upload)
-		case ssh
-			set basename (randstr)
-			set extension (basename $uploadme | awk -F . '{print $NF}')
-
-			scp -q $uploadme $ssh/$basename.$extension
-
-			set -g url https://punpun.xyz/$basename.$extension
 		case "*"
-			echo 'please choose between sr.ht, punpun.xyz or ssh.' >/dev/stderr
+			echo 'please choose between sr.ht or punpun.xyz.' >/dev/stderr
 			exit 1
 	end
 end
@@ -159,7 +152,7 @@ if test (count $argv) -ge 1
 				echo '  -c,   --clipboard       upload your clipboard as text'
 				echo '  -d,   --desktop         force desktop scrot'
 				echo '  -s,   --selection       upload selection scrot'
-				echo '  -q,   --quiet           disable all feedback (for scripts using punf)'
+				echo '  -q,   --quiet           disable all feedback'
 				echo '  -h,   --help            print help and exit'
 				exit 0
 			case c clipboard
