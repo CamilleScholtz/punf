@@ -13,121 +13,121 @@ set configdir $HOME/.punf
 
 # This function checks if X is running
 function checkx
-	if test -z $DISPLAY
-		echo 'You are not using X right now, can\'t take screenshot.' >/dev/stderr
-		exit 1
-	end
+    if test -z $DISPLAY
+        echo 'You are not using X right now, can\'t take screenshot.' >/dev/stderr
+        exit 1
+    end
 end
 
 # This function sets $file to your clipboard contents
 function clipboard
-	set -g uploadme /tmp/clipboard.txt
+    set -g uploadme /tmp/clipboard.txt
 
-	xsel -o >$uploadme
+    xsel -o >$uploadme
 
-	set -g word clipboard
+    set -g word clipboard
 end
 
 # This function sets $file to a full screen scrot
 function desktop
-	checkx
+    checkx
 
-	set -g uploadme /tmp/scrot.png
+    set -g uploadme /tmp/scrot.png
 
-	maim --hidecursor $uploadme
+    xscrot $uploadme
 
-	set -g word desktop
+    set -g word desktop
 end
 
 # This function sets $file to a file
 function file
-	if test -f $argv
-		set -g uploadme $argv
-	else
-		echo 'File not found.' >/dev/stderr
-		exit 1
-	end
+    if test -f $argv
+        set -g uploadme $argv
+    else
+        echo 'File not found.' >/dev/stderr
+        exit 1
+    end
 
-	set -g word file
+    set -g word file
 end
 
 # This function sets $file to a selection stdin
 function stdin
-	set -g uploadme /tmp/stdin.txt
+    set -g uploadme /tmp/stdin.txt
 
-	cat /dev/stdin >$uploadme
+    cat /dev/stdin >$uploadme
 
-	set -g word stdin
+    set -g word stdin
 end
 
 # This function sets $file to a selection scrot
 function selection
-	checkx
+    checkx
 
-	set -g uploadme /tmp/scrot.png
+    set -g uploadme /tmp/scrot.png
 
-	maim --hidecursor -s -b 10 -c 238,238,238 $uploadme ^/dev/null
-	if test $status -ge 1
-		echo 'Selection cancelled.' >/dev/stderr
-		exit 1
-	end
+    xscrot -s $uploadme
+    if test $status -ge 1
+        echo 'Selection cancelled.' >/dev/stderr
+        exit 1
+    end
 
-	set -g word selection
+    set -g word selection
 end
 
 # This function sets $file to a url
 function url
-	set type (string replace -r '.*\.' '' $argv)
-	set -g uploadme /tmp/url.$type
+    set type (string replace -r '.*\.' '' $argv)
+    set -g uploadme /tmp/url.$type
 
-	wget --quiet $argv -O $uploadme
+    wget --quiet $argv -O $uploadme
 
-	set -g word url
+    set -g word url
 end
 
 # This function uploads the $file
 function upload
-	switch $host
-		case sr.ht
-			set -g url (curl --silent -F key=$key -F file="@$uploadme" https://sr.ht/api/upload | string match -r 'https://sr.ht/[a-zA-Z0-9._-]*')
-		case punpun.xyz
-			set -g url (curl --silent -F file="@$uploadme" https://punpun.xyz/upload)
-		case "*"
-			echo 'please choose between sr.ht or punpun.xyz.' >/dev/stderr
-			exit 1
-	end
+    switch $host
+        case sr.ht
+            set -g url (curl --silent -F key=$key -F file="@$uploadme" https://sr.ht/api/upload | string match -r 'https://sr.ht/[a-zA-Z0-9._-]*')
+        case punpun.xyz
+            set -g url (curl --silent -F file="@$uploadme" https://punpun.xyz/upload)
+        case "*"
+            echo 'please choose between sr.ht or punpun.xyz.' >/dev/stderr
+            exit 1
+    end
 end
 
 # This function logs the url,  copies the url to the clipboard, and/or opens the url in your browser
 function feedback
-	# Copy url to clipboard
-	if test $clipboard = true -a $quiet = false
-		echo $url | xsel -p
-		echo $url | xsel -s
-		echo $url | xsel -b
-	end
+    # Copy url to clipboard
+    if test $clipboard = true -a $quiet = false
+        echo $url | xsel -p
+        echo $url | xsel -s
+        echo $url | xsel -b
+    end
 
-	# Log url
-	if test $log = true -a $quiet = false
-		echo $url >>$configdir/log
-	end
+    # Log url
+    if test $log = true -a $quiet = false
+        echo $url >>$configdir/log
+    end
 
-	# Open url in browser
-	if test $browser = true -a $quiet = false
-		$BROWSER $url
-	end
+    # Open url in browser
+    if test $browser = true -a $quiet = false
+        $BROWSER $url
+    end
 
-	# Send notification
-	if test $notify = true -a $quiet = false
-		notify "Punfed $word: $url" &
-	end
+    # Send notification
+    if test $notify = true -a $quiet = false
+        notify "Punfed $word: $url" &
+    end
 
-	# Send link
-	if test $quiet = true
-		echo $url
-	else
-		echo "Punfed $word: $url"
-	end
+    # Send link
+    if test $quiet = true
+        echo $url
+    else
+        echo "Punfed $word: $url"
+    end
 end
 
 ## EXECUTE
@@ -137,47 +137,47 @@ set quiet false
 
 # Load config
 if not test -f $configdir/config
-	echo "$configdir/config not found." >/dev/stderr
-	echo "Move /usr/share/punf/config to $configdir." >/dev/stderr
-	exit 1
+    echo "$configdir/config not found." >/dev/stderr
+    echo "Move /usr/share/punf/config to $configdir." >/dev/stderr
+    exit 1
 end
 source $configdir/config
 
 if test (count $argv) -ge 1
-	getopts $argv | while read -l opt val
-		switch $opt
-			case h help
-				echo -e 'Usage: punf [arguments] [file/url]\n'
-				echo 'arguments:'
-				echo '  -c,   --clipboard       upload your clipboard as text'
-				echo '  -d,   --desktop         force desktop scrot'
-				echo '  -s,   --selection       upload selection scrot'
-				echo '  -q,   --quiet           disable all feedback'
-				echo '  -h,   --help            print help and exit'
-				exit 0
-			case c clipboard
-				clipboard
-			case d desktop
-				desktop
-			case s selection
-				selection
-			case q quiet
-				set quiet true
-				file $val
-			case '*'
-				if string match -q -r '^http.*' $val
-					url $val
-				else
-					file $val
-				end
-		end
-	end
+    getopts $argv | while read -l opt val
+        switch $opt
+            case h help
+                echo -e 'Usage: punf [arguments] [file/url]\n'
+                echo 'arguments:'
+                echo '  -c,   --clipboard       upload your clipboard as text'
+                echo '  -d,   --desktop         force desktop scrot'
+                echo '  -s,   --selection       upload selection scrot'
+                echo '  -q,   --quiet           disable all feedback'
+                echo '  -h,   --help            print help and exit'
+                exit 0
+            case c clipboard
+                clipboard
+            case d desktop
+                desktop
+            case s selection
+                selection
+            case q quiet
+                set quiet true
+                file $val
+            case '*'
+                if string match -q -r '^http.*' $val
+                    url $val
+                else
+                    file $val
+                end
+        end
+    end
 else
-	if test -t 0
-		desktop
-	else
-		stdin
-	end
+    if test -t 0
+        desktop
+    else
+        stdin
+    end
 end
 
 upload
