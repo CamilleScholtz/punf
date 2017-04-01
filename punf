@@ -91,7 +91,7 @@ function upload
         case sr.ht
             set -g url (curl --silent -F key=$key -F file="@$uploadme" https://sr.ht/api/upload | string match -r 'https://sr.ht/[a-zA-Z0-9._-]*')
         case punpun.xyz
-            set -g url (curl --silent -u onodera:Cranberry1 -F file="@$uploadme" https://punpun.xyz/upload)
+            set -g url (curl --silent -F file="@$uploadme" https://punpun.xyz/upload)
         case "*"
             echo 'please choose between sr.ht or punpun.xyz.' >/dev/stderr
             exit 1
