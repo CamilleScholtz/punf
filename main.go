@@ -91,7 +91,7 @@ func getURLs(l []string) ([]string, error) {
 func getSelScrot() ([]string, error) {
 	args := strings.Fields(config.SelScrot)
 
-	cmd := exec.Command(args[0], args[1:len(args)]...)
+	cmd := exec.Command(args[0], args[1:]...)
 
 	if err := cmd.Run(); err != nil {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
@@ -103,7 +103,7 @@ func getSelScrot() ([]string, error) {
 func getScrot() ([]string, error) {
 	args := strings.Fields(config.Scrot)
 
-	cmd := exec.Command(args[0], args[1:len(args)]...)
+	cmd := exec.Command(args[0], args[1:]...)
 
 	if err := cmd.Run(); err != nil {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
