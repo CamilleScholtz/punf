@@ -92,7 +92,6 @@ func getSelScrot() ([]string, error) {
 	args := strings.Fields(config.SelScrot)
 
 	cmd := exec.Command(args[0], args[1:]...)
-
 	if err := cmd.Run(); err != nil {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
@@ -104,7 +103,6 @@ func getScrot() ([]string, error) {
 	args := strings.Fields(config.Scrot)
 
 	cmd := exec.Command(args[0], args[1:]...)
-
 	if err := cmd.Run(); err != nil {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}

@@ -7,11 +7,11 @@ key = "seekrit"
 
 # Your preferred screenshot command.
 # Make sure to save the file to /tmp/screenshot.png.
-scrot = "maim -q 5 -o /tmp/screenshot.png"
+scrot = "maim -m 5 -o /tmp/screenshot.png"
 
 # Your preferred selection screenshot command.
 # Make sure to save the file to /tmp/screenshot.png.
-selscrot = "maim -b 1 -c 0.921,0.376,0.517,1 -s -q 5 -o /tmp/screenshot.png"
+selscrot = "maim -b 1 -c 0.921,0.376,0.517,1 -s -m 5 -o /tmp/screenshot.png"
 
 # Copy URL to clipboard.
 clipboard = true
