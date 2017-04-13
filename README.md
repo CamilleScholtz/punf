@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/onodera-punpun/punf)](https://goreportcard.com/report/github.com/onodera-punpun/punf)
 
-Upload files/scrots/urls to sr.ht, punpun.xyz, or via ssh.
+ Upload files/scrots/URLs to punpun.xyz or sr.ht.
 
 
 ## SYNOPSIS
