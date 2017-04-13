@@ -17,10 +17,9 @@ var config struct {
 	Scrot    string
 	SelScrot string
 
-	Clipboard    bool
-	Log          bool
-	Notification bool
-	Print        bool
+	Clipboard bool
+	Log       bool
+	Print     bool
 }
 
 // initConfig initializes the config struct.
@@ -30,8 +29,8 @@ func initConfig() error {
 		return err
 	}
 
-	if _, err = toml.DecodeFile(filepath.Join(hd, "punf/config.toml"), &config); err != nil {
-		return fmt.Errorf("config ./config.toml: " + err.Error())
+	if _, err = toml.DecodeFile(filepath.Join(hd, ".punf", "config.toml"), &config); err != nil {
+		return fmt.Errorf("config %s: %s", filepath.Join(hd, ".punf", "config.toml"), err)
 	}
 
 	return nil

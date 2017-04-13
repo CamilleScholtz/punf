@@ -12,69 +12,120 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/go2c/optparse"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mvdan/xurls"
 )
 
-func getClipboard() (string, error) {
+func curl(fk, kk, hk string, fl ...string) (string, error) {
+	args := []string{"--silent"}
+	for _, f := range fl {
+		args = append(args, "-F", fk+"=@"+f)
+	}
+
+	args = append(args, "-F", kk+"="+config.Key, hk)
+	cmd := exec.Command("curl", args...)
+	b := new(bytes.Buffer)
+	cmd.Stdout = b
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("curl %s: Something went wrong", fl)
+	}
+
+	return b.String(), nil
+}
+
+func getClipboard() ([]string, error) {
 	fr, err := clipboard.ReadAll()
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 
 	f := filepath.Join(os.TempDir(), "clipboard.txt")
 	if err := ioutil.WriteFile(f, []byte(fr), 0644); err != nil {
-		return "", err
+		return []string{}, err
 	}
 
-	return f, nil
+	return []string{f}, nil
 }
 
-func getScrot() (string, error) {
-	args := strings.Fields(config.Scrot)
+func getFiles(l []string) ([]string, error) {
+	var fl []string
+	for _, f := range l {
+		if _, err := os.Stat(f); os.IsNotExist(err) {
+			return []string{}, err
+		}
 
-	cmd := exec.Command(args[0], args[1:len(args)]...)
-
-	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("scrot: Selection cancelled")
+		fl = append(fl, f)
 	}
 
-	return "/tmp/screenshot.png", nil
+	return fl, nil
 }
 
-func getSelScrot() (string, error) {
+func getStdin() ([]string, error) {
+	fr, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return []string{}, err
+	}
+
+	f := filepath.Join(os.TempDir(), "stdin.txt")
+	if err := ioutil.WriteFile(f, fr, 0644); err != nil {
+		return []string{}, err
+	}
+
+	return []string{f}, nil
+}
+
+func getURLs(l []string) ([]string, error) {
+	var fl []string
+	for _, u := range l {
+		f := filepath.Join(os.TempDir(), filepath.Base(u))
+		cmd := exec.Command("curl", "-L", "--fail", "--ftp-pasv", "-C", "-", "-o", f, u)
+		if err := cmd.Run(); err != nil {
+			return []string{}, fmt.Errorf("getURLs %s: Could not download source", u)
+		}
+
+		fl = append(fl, f)
+	}
+
+	return fl, nil
+}
+
+func getSelScrot() ([]string, error) {
 	args := strings.Fields(config.SelScrot)
 
 	cmd := exec.Command(args[0], args[1:len(args)]...)
 
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("scrot: Selection cancelled")
+		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
 
-	return "/tmp/screenshot.png", nil
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
+}
+
+func getScrot() ([]string, error) {
+	args := strings.Fields(config.Scrot)
+
+	cmd := exec.Command(args[0], args[1:len(args)]...)
+
+	if err := cmd.Run(); err != nil {
+		return []string{}, fmt.Errorf("scrot: Selection cancelled")
+	}
+
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
 }
 
 func upload(h string, fl ...string) ([]string, error) {
-	args := []string{"--silent"}
-	for _, f := range fl {
-		args = append(args, "-F", "file=@"+f)
-	}
-
+	var urls []string
 	switch h {
 	case "punpun.xyz":
-		args = append(args, "-F", "key="+config.Key, "https://punpun.xyz/upload")
-	case "sr.ht":
-		args = append(args, "-F", "key="+config.Key, "https://sr.ht/api/upload")
+		url, err := curl("file", "key", "https://punpun.xyz/upload/", fl...)
+		if err != nil {
+			return []string{}, err
+		}
+		urls = strings.Fields(url)
 	default:
 		return []string{}, fmt.Errorf("upload %s: No such host", h)
 	}
 
-	b := new(bytes.Buffer)
-	cmd := exec.Command("curl", args...)
-	cmd.Stdout = b
-	if err := cmd.Run(); err != nil {
-		return []string{}, fmt.Errorf("upload %s: Something went wrong", fl)
-	}
-
-	return strings.Fields(b.String()), nil
+	return urls, nil
 }
 
 func main() {
@@ -109,13 +160,19 @@ func main() {
 		os.Exit(0)
 	}
 
+	std, err := os.Stdin.Stat()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	var word string
 	var fl []string
 	switch {
 	case *argc:
 		word = "clipboard"
 
-		fl[0], err = getClipboard()
+		fl, err = getClipboard()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -124,30 +181,55 @@ func main() {
 	case *args:
 		word = "screenshot"
 
-		fl[0], err = getSelScrot()
+		fl, err = getSelScrot()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		defer os.Remove(fl[0])
 	case len(vals) > 0:
-		word = "file"
-
-		for _, v := range vals {
-			if _, err := os.Stat(v); os.IsNotExist(err) {
-				fmt.Fprintln(os.Stderr, err)
-				continue
+		urls := xurls.Strict.FindAllString(strings.Join(vals, " "), -1)
+		if len(urls) > 0 {
+			if len(urls) == 1 {
+				word = "URL"
+			} else {
+				word = "URLs"
 			}
 
-			fl = append(fl, v)
+			fl, err = getURLs(urls)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			for _, f := range fl {
+				defer os.Remove(f)
+			}
+		} else {
+			if len(vals) == 1 {
+				word = "file"
+			} else {
+				word = "files"
+			}
+
+			fl, err = getFiles(vals)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
 		}
-		if len(vals) == 0 {
+	case (std.Mode() & os.ModeNamedPipe) != 0:
+		word = "stdin"
+
+		fl, err = getStdin()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+		defer os.Remove(fl[0])
 	default:
 		word = "screenshot"
 
-		fl[0], err = getScrot()
+		fl, err = getScrot()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -155,7 +237,7 @@ func main() {
 		defer os.Remove(fl[0])
 	}
 
-	url, err := upload(config.Host, fl...)
+	urls, err := upload(config.Host, fl...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -164,7 +246,7 @@ func main() {
 	if config.Clipboard {
 		// TODO: What should I do with multiple URLs?
 		// TODO: Also copy to PRIMARY.
-		err := clipboard.WriteAll(url[0])
+		err := clipboard.WriteAll(urls[0])
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
@@ -176,28 +258,21 @@ func main() {
 			os.Exit(1)
 		}
 
-		lf, err := os.OpenFile(filepath.Join(hd, "punf/log"), os.O_APPEND|os.O_WRONLY, 0644)
+		log, err := os.OpenFile(filepath.Join(hd, ".punf", "log"), os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
-		for i, u := range url {
-			if _, err := lf.WriteString(u + "\t" + fl[i] + "\n"); err != nil {
+		for i, url := range urls {
+			if _, err := log.WriteString(url + "\t" + filepath.Base(fl[i]) + "\n"); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 		}
 
-		lf.Close()
-	}
-	if config.Notification && !*argq {
-		// TODO.
+		log.Close()
 	}
 	if config.Print && !*argq {
-		if len(url) > 1 {
-			fmt.Printf("Punfed files: %s\n", strings.Join(url, ", "))
-		} else {
-			fmt.Printf("Punfed %s: %s\n", word, url[0])
-		}
+		fmt.Printf("Punfed %s: %s\n", word, strings.Join(urls, ", "))
 	}
 }
