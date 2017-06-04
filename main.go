@@ -77,9 +77,11 @@ func getURLs(l []string) ([]string, error) {
 	var fl []string
 	for _, u := range l {
 		f := filepath.Join(os.TempDir(), filepath.Base(u))
-		cmd := exec.Command("curl", "-L", "--fail", "--ftp-pasv", "-C", "-", "-o", f, u)
+		cmd := exec.Command("curl", "-L", "--fail", "--ftp-pasv",
+			"-C", "-", "-o", f, u)
 		if err := cmd.Run(); err != nil {
-			return []string{}, fmt.Errorf("getURLs %s: Could not download source", u)
+			return []string{}, fmt.Errorf(
+				"getURLs %s: Could not download source", u)
 		}
 
 		fl = append(fl, f)
@@ -96,7 +98,8 @@ func getSelScrot() ([]string, error) {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
 
-	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")},
+		nil
 }
 
 func getScrot() ([]string, error) {
@@ -107,14 +110,16 @@ func getScrot() ([]string, error) {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
 
-	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")},
+		nil
 }
 
 func upload(h string, fl ...string) ([]string, error) {
 	var urls []string
 	switch h {
 	case "punpun.xyz":
-		url, err := curl("file", "key", "https://punpun.xyz/upload/", fl...)
+		url, err := curl("file", "key", "https://punpun.xyz/upload/",
+			fl...)
 		if err != nil {
 			return []string{}, err
 		}
@@ -128,7 +133,7 @@ func upload(h string, fl ...string) ([]string, error) {
 
 func main() {
 	// Initialize the config.
-	if err := initConfig(); err != nil {
+	if err := parseConfig(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -142,7 +147,8 @@ func main() {
 	// Parse arguments.
 	vals, err := optparse.Parse()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Invaild argument, use -h for a list of arguments!")
+		fmt.Fprintln(os.Stderr,
+			"Invaild argument, use -h for a list of arguments!")
 		os.Exit(1)
 	}
 
@@ -186,7 +192,8 @@ func main() {
 		}
 		defer os.Remove(fl[0])
 	case len(vals) > 0:
-		urls := xurls.Strict.FindAllString(strings.Join(vals, " "), -1)
+		urls := xurls.Strict.FindAllString(strings.Join(vals, " "),
+			-1)
 		if len(urls) > 0 {
 			if len(urls) == 1 {
 				word = "URL"
@@ -256,14 +263,16 @@ func main() {
 			os.Exit(1)
 		}
 
-		log, err := os.OpenFile(filepath.Join(hd, ".punf", "log"), os.O_APPEND|os.O_WRONLY, 0644)
+		log, err := os.OpenFile(filepath.Join(hd, ".punf", "log"),
+			os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
 		for i, url := range urls {
-			if _, err := log.WriteString(url + "\t" + filepath.Base(fl[i]) + "\n"); err != nil {
+			if _, err := log.WriteString(url + "\t" +
+				filepath.Base(fl[i]) + "\n"); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 		}
