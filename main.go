@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atotto/clipboard"
 	"github.com/go2c/optparse"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/mvdan/xurls"
+	"github.com/zyedidia/clipboard"
 )
 
 func curl(fk, kk, hk string, fl ...string) (string, error) {
@@ -33,7 +33,8 @@ func curl(fk, kk, hk string, fl ...string) (string, error) {
 }
 
 func getClipboard() ([]string, error) {
-	fr, err := clipboard.ReadAll()
+	// TODO: What about primary here?
+	fr, err := clipboard.ReadAll("clipboard")
 	if err != nil {
 		return []string{}, err
 	}
@@ -249,10 +250,12 @@ func main() {
 	}
 
 	if config.Clipboard {
-		// TODO: What should I do with multiple URLs?
-		// TODO: Also copy to PRIMARY.
-		err := clipboard.WriteAll(urls[0])
-		if err != nil {
+		// TODO: What should I do when there are multiple URLs?
+		if err := clipboard.WriteAll(urls[0], "clipboard"); err !=
+			nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		if err := clipboard.WriteAll(urls[0], "primary"); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
