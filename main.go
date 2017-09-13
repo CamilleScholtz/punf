@@ -119,8 +119,8 @@ func upload(h string, fl ...string) ([]string, error) {
 	var urls []string
 	switch h {
 	case "punpun.xyz":
-		url, err := curl("file", "key", "https://punpun.xyz/upload/",
-			fl...)
+		url, err := curl("files[]", "key",
+			"https://punpun.xyz/upload/api.php", fl...)
 		if err != nil {
 			return []string{}, err
 		}

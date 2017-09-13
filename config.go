@@ -1,5 +1,5 @@
 // config.go contains functions that interact with the config file,
-// this is a file called `config.toml` found in `~/pun/config.toml`.
+// this is a file called `config.toml` found in `~/punf/config.toml`.
 
 package main
 
@@ -26,7 +26,7 @@ var config struct {
 	Print     bool
 }
 
-// pareConfig parses a toml config.
+// parseConfig parses a toml config.
 func parseConfig() error {
 	hd, err := homedir.Dir()
 	if err != nil {
