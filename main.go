@@ -11,8 +11,8 @@ import (
 
 	"github.com/go2c/optparse"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/mvdan/xurls"
 	"github.com/zyedidia/clipboard"
+	"mvdan.cc/xurls"
 )
 
 func curl(fk, kk, hk string, fl ...string) (string, error) {
