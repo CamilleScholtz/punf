@@ -10,18 +10,18 @@ import (
 	"strings"
 
 	"github.com/go2c/optparse"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/zyedidia/clipboard"
 	"mvdan.cc/xurls"
 )
 
-func curl(fk, kk, hk string, fl ...string) (string, error) {
+func curl(fl ...string) (string, error) {
 	args := []string{"--silent"}
 	for _, f := range fl {
-		args = append(args, "-F", fk+"=@"+f)
+		args = append(args, "-F", "files[]=@"+f)
 	}
 
-	args = append(args, "-F", kk+"="+config.Key, hk)
+	args = append(args, "-F", "id="+config.ID, "-F", "key="+
+		config.Key, "https://punpun.xyz/upload/api.php")
 	cmd := exec.Command("curl", args...)
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
@@ -115,19 +115,14 @@ func getScrot() ([]string, error) {
 		nil
 }
 
-func upload(h string, fl ...string) ([]string, error) {
+func upload(fl ...string) ([]string, error) {
 	var urls []string
-	switch h {
-	case "punpun.xyz":
-		url, err := curl("files[]", "key",
-			"https://punpun.xyz/upload/api.php", fl...)
-		if err != nil {
-			return []string{}, err
-		}
-		urls = strings.Fields(url)
-	default:
-		return []string{}, fmt.Errorf("upload %s: No such host", h)
+
+	url, err := curl(fl...)
+	if err != nil {
+		return []string{}, err
 	}
+	urls = strings.Fields(url)
 
 	return urls, nil
 }
@@ -141,6 +136,7 @@ func main() {
 
 	// Define valid arguments.
 	argc := optparse.Bool("clipboard", 'c', false)
+	argl := optparse.Bool("list", 'l', false)
 	args := optparse.Bool("selection", 's', false)
 	argq := optparse.Bool("quiet", 'q', false)
 	argh := optparse.Bool("help", 'h', false)
@@ -159,6 +155,7 @@ func main() {
 		fmt.Println("")
 		fmt.Println("arguments:")
 		fmt.Println("  -c,   --clipboard       upload your clipboard as text")
+		fmt.Println("  -l,   --list            list all uploaded files")
 		fmt.Println("  -s,   --selection       upload selection scrot")
 		fmt.Println("  -q,   --quiet           disable all feedback")
 		fmt.Println("  -q,   --help            print help and exit")
@@ -171,21 +168,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	var word string
 	var fl []string
 	switch {
 	case *argc:
-		word = "clipboard"
-
 		fl, err = getClipboard()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		defer os.Remove(fl[0])
+	case *argl:
+		// TODO
+		os.Exit(0)
 	case *args:
-		word = "screenshot"
-
 		fl, err = getSelScrot()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -196,12 +191,6 @@ func main() {
 		urls := xurls.Strict.FindAllString(strings.Join(vals, " "),
 			-1)
 		if len(urls) > 0 {
-			if len(urls) == 1 {
-				word = "URL"
-			} else {
-				word = "URLs"
-			}
-
 			fl, err = getURLs(urls)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
@@ -211,12 +200,6 @@ func main() {
 				defer os.Remove(f)
 			}
 		} else {
-			if len(vals) == 1 {
-				word = "file"
-			} else {
-				word = "files"
-			}
-
 			fl, err = getFiles(vals)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
@@ -224,8 +207,6 @@ func main() {
 			}
 		}
 	case (std.Mode() & os.ModeNamedPipe) != 0:
-		word = "stdin"
-
 		fl, err = getStdin()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -233,8 +214,6 @@ func main() {
 		}
 		defer os.Remove(fl[0])
 	default:
-		word = "screenshot"
-
 		fl, err = getScrot()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -243,7 +222,7 @@ func main() {
 		defer os.Remove(fl[0])
 	}
 
-	urls, err := upload(config.Host, fl...)
+	urls, err := upload(fl...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -259,30 +238,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
-	if config.Log {
-		hd, err := homedir.Dir()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		log, err := os.OpenFile(filepath.Join(hd, ".punf", "log"),
-			os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		for i, url := range urls {
-			if _, err := log.WriteString(url + "\t" +
-				filepath.Base(fl[i]) + "\n"); err != nil {
-				fmt.Fprintln(os.Stderr, err)
-			}
-		}
-
-		log.Close()
-	}
 	if config.Print && !*argq {
-		fmt.Printf("Punfed %s: %s\n", word, strings.Join(urls, ", "))
+		fmt.Println(strings.Join(urls, "\n"))
 	}
 }

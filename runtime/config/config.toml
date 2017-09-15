@@ -1,8 +1,5 @@
-# The host you want to upload to.
-# Possible values are "punpun.xyz" (for now).
-host = "punpun.xyz"
-
-# Your authentication key.
+# Your ID and key.
+id  = "DarkLord66"
 key = "seekrit"
 
 # Your preferred screenshot command.
@@ -15,9 +12,6 @@ selscrot = "maim -b 1 -c 0.921,0.376,0.517,1 -s -m 5 -o /tmp/screenshot.png"
 
 # Copy URL to clipboard.
 clipboard = true
-
-# Log URL to file.
-log = true
 
 # Print URL to stdout.
 print = true

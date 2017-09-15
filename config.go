@@ -15,14 +15,13 @@ import (
 // `runtime/config/config.toml` for more information about these
 // values.
 var config struct {
-	Host string
-	Key  string
+	ID  string
+	Key string
 
 	Scrot    string
 	SelScrot string
 
 	Clipboard bool
-	Log       bool
 	Print     bool
 }
 
