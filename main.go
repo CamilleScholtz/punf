@@ -20,8 +20,8 @@ func curl(fl ...string) (string, error) {
 		args = append(args, "-F", "files[]=@"+f)
 	}
 
-	args = append(args, "-F", "id="+config.ID, "-F", "key="+
-		config.Key, "https://punpun.xyz/upload/api.php")
+	args = append(args, "-F", "id="+config.ID, "-F", "key="+config.Key,
+		"https://punpun.xyz/upload/api.php")
 	cmd := exec.Command("curl", args...)
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
@@ -78,8 +78,8 @@ func getURLs(l []string) ([]string, error) {
 	var fl []string
 	for _, u := range l {
 		f := filepath.Join(os.TempDir(), filepath.Base(u))
-		cmd := exec.Command("curl", "-L", "--fail", "--ftp-pasv",
-			"-C", "-", "-o", f, u)
+		cmd := exec.Command("curl", "-L", "--fail", "--ftp-pasv", "-C", "-",
+			"-o", f, u)
 		if err := cmd.Run(); err != nil {
 			return []string{}, fmt.Errorf(
 				"getURLs %s: Could not download source", u)
@@ -99,8 +99,7 @@ func getSelScrot() ([]string, error) {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
 
-	return []string{filepath.Join(os.TempDir(), "screenshot.png")},
-		nil
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
 }
 
 func getScrot() ([]string, error) {
@@ -111,8 +110,7 @@ func getScrot() ([]string, error) {
 		return []string{}, fmt.Errorf("scrot: Selection cancelled")
 	}
 
-	return []string{filepath.Join(os.TempDir(), "screenshot.png")},
-		nil
+	return []string{filepath.Join(os.TempDir(), "screenshot.png")}, nil
 }
 
 func upload(fl ...string) ([]string, error) {
@@ -188,8 +186,7 @@ func main() {
 		}
 		defer os.Remove(fl[0])
 	case len(vals) > 0:
-		urls := xurls.Strict.FindAllString(strings.Join(vals, " "),
-			-1)
+		urls := xurls.Strict.FindAllString(strings.Join(vals, " "), -1)
 		if len(urls) > 0 {
 			fl, err = getURLs(urls)
 			if err != nil {
@@ -230,8 +227,7 @@ func main() {
 
 	if config.Clipboard {
 		// TODO: What should I do when there are multiple URLs?
-		if err := clipboard.WriteAll(urls[0], "clipboard"); err !=
-			nil {
+		if err := clipboard.WriteAll(urls[0], "clipboard"); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 		if err := clipboard.WriteAll(urls[0], "primary"); err != nil {

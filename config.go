@@ -1,5 +1,5 @@
-// config.go contains functions that interact with the config file,
-// this is a file called `config.toml` found in `~/punf/config.toml`.
+// config.go contains functions that interact with the config file, this is a
+// file called `config.toml` found in `~/punf/config.toml`.
 
 package main
 
@@ -11,9 +11,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-// config is a stuct with all config values. See
-// `runtime/config/config.toml` for more information about these
-// values.
+// config is a stuct with all config values. See // `runtime/config/config.toml`
+// for more information about these values.
 var config struct {
 	ID  string
 	Key string
@@ -32,8 +31,8 @@ func parseConfig() error {
 		return err
 	}
 
-	if _, err = toml.DecodeFile(filepath.Join(hd, ".punf",
-		"config.toml"), &config); err != nil {
+	if _, err = toml.DecodeFile(filepath.Join(hd, ".punf", "config.toml"),
+		&config); err != nil {
 		return fmt.Errorf("config %s: %s", filepath.Join(hd, ".punf",
 			"config.toml"), err)
 	}
