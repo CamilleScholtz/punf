@@ -186,7 +186,7 @@ func main() {
 		}
 		defer os.Remove(fl[0])
 	case len(vals) > 0:
-		urls := xurls.Strict.FindAllString(strings.Join(vals, " "), -1)
+		urls := xurls.Strict().FindAllString(strings.Join(vals, " "), -1)
 		if len(urls) > 0 {
 			fl, err = getURLs(urls)
 			if err != nil {
