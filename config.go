@@ -1,6 +1,3 @@
-// config.go contains functions that interact with the config file, this is a
-// file called `config.toml` found in `~/punf/config.toml`.
-
 package main
 
 import (
@@ -11,7 +8,7 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-// config is a stuct with all config values. See // `runtime/config/config.toml`
+// config is a stuct with all config values. See `runtime/config/config.toml`
 // for more information about these values.
 var config struct {
 	ID  string

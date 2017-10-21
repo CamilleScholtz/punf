@@ -21,7 +21,7 @@ func curl(fl ...string) (string, error) {
 	}
 
 	args = append(args, "-F", "id="+config.ID, "-F", "key="+config.Key,
-		"https://punpun.xyz/upload/api.php")
+		"https://punpun.moe/upload/api.php")
 	cmd := exec.Command("curl", args...)
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
