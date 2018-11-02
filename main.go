@@ -156,7 +156,7 @@ func main() {
 		fmt.Println("  -l,   --list            list all uploaded files")
 		fmt.Println("  -s,   --selection       upload selection scrot")
 		fmt.Println("  -q,   --quiet           disable all feedback")
-		fmt.Println("  -q,   --help            print help and exit")
+		fmt.Println("  -h,   --help            print help and exit")
 		os.Exit(0)
 	}
 
