@@ -11,8 +11,8 @@ import (
 // config is a stuct with all config values. See `runtime/config/config.toml`
 // for more information about these values.
 var config struct {
-	ID  string
-	Key string
+	User string
+	Pass string
 
 	Scrot    string
 	SelScrot string

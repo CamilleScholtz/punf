@@ -1,6 +1,6 @@
-# Your ID and key.
-id  = "DarkLord66"
-key = "seekrit"
+# Your username and password.
+user = "username"
+pass = "password"
 
 # Your preferred screenshot command.
 # Make sure to save the file to /tmp/screenshot.png.

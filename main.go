@@ -20,8 +20,8 @@ func curl(fl ...string) (string, error) {
 		args = append(args, "-F", "files[]=@"+f)
 	}
 
-	args = append(args, "-F", "id="+config.ID, "-F", "key="+config.Key,
-		"https://punpun.moe/upload/api.php")
+	args = append(args, "-F", "user="+config.User, "-F", "pass="+config.Pass,
+		"https://punpun.moe/upload")
 	cmd := exec.Command("curl", args...)
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
