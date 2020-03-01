@@ -11,7 +11,7 @@ import (
 
 	"github.com/go2c/optparse"
 	"github.com/zyedidia/clipboard"
-	"mvdan.cc/xurls"
+	"mvdan.cc/xurls/v2"
 )
 
 func curl(fl ...string) (string, error) {
@@ -21,7 +21,7 @@ func curl(fl ...string) (string, error) {
 	}
 
 	args = append(args, "-F", "user="+config.User, "-F", "pass="+config.Pass,
-		"https://punpun.moe/upload")
+		config.URL)
 	cmd := exec.Command("curl", args...)
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
@@ -125,6 +125,15 @@ func upload(fl ...string) ([]string, error) {
 	return urls, nil
 }
 
+func view() error {
+	args := []string{"--silent", "-F", "function=view", "-F", "user=" + config.
+		User, "-F", "pass=" + config.Pass, config.URL}
+
+	cmd := exec.Command("curl", args...)
+	cmd.Stdout = os.Stdout
+	return cmd.Run()
+}
+
 func main() {
 	// Initialize the config.
 	if err := parseConfig(); err != nil {
@@ -134,9 +143,8 @@ func main() {
 
 	// Define valid arguments.
 	argc := optparse.Bool("clipboard", 'c', false)
-	argl := optparse.Bool("list", 'l', false)
 	args := optparse.Bool("selection", 's', false)
-	argq := optparse.Bool("quiet", 'q', false)
+	argv := optparse.Bool("view", 'v', false)
 	argh := optparse.Bool("help", 'h', false)
 
 	// Parse arguments.
@@ -153,9 +161,8 @@ func main() {
 		fmt.Println("")
 		fmt.Println("arguments:")
 		fmt.Println("  -c,   --clipboard       upload your clipboard as text")
-		fmt.Println("  -l,   --list            list all uploaded files")
 		fmt.Println("  -s,   --selection       upload selection scrot")
-		fmt.Println("  -q,   --quiet           disable all feedback")
+		fmt.Println("  -v,   --view            view all uploaded files")
 		fmt.Println("  -h,   --help            print help and exit")
 		os.Exit(0)
 	}
@@ -175,9 +182,6 @@ func main() {
 			os.Exit(1)
 		}
 		defer os.Remove(fl[0])
-	case *argl:
-		// TODO
-		os.Exit(0)
 	case *args:
 		fl, err = getSelScrot()
 		if err != nil {
@@ -185,6 +189,11 @@ func main() {
 			os.Exit(1)
 		}
 		defer os.Remove(fl[0])
+	case *argv:
+		if err := view(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	case len(vals) > 0:
 		urls := xurls.Strict().FindAllString(strings.Join(vals, " "), -1)
 		if len(urls) > 0 {
@@ -234,7 +243,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
-	if config.Print && !*argq {
+	if config.Print {
 		fmt.Println(strings.Join(urls, "\n"))
 	}
 }
