@@ -198,7 +198,7 @@ func main() {
 			os.Exit(1)
 		}
 	case (std.Mode() & os.ModeNamedPipe) != 0:
-		pl = []punf{punf{"stdin.txt", os.Stdin}}
+		pl = []punf{{"stdin.txt", os.Stdin}}
 	default:
 		s, err := getScrot(false)
 		if err != nil {
